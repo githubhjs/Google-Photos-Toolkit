@@ -490,9 +490,13 @@ export default class Core {
   async executeAction(action: Action, params: ExecuteActionParams): Promise<void> {
     log(`Items to process: ${params.mediaItems.length}`);
 
-    let actionId = action.elementId;
-    if (actionId === 'restoreTrash' || params.source === 'trash') actionId = 'restoreTrash';
-    if (actionId === 'unLock' || params.source === 'lockedFolder') actionId = 'unLock';
+    const actionId = action.elementId;
+    if (actionId === 'restoreTrash' && params.source !== 'trash') {
+      throw new Error('Restore from trash requires the Trash source');
+    }
+    if (actionId === 'unLock' && params.source !== 'lockedFolder') {
+      throw new Error('Unlock requires the Locked Folder source');
+    }
 
     const handler = this.actionHandlers[actionId];
     if (handler) {
